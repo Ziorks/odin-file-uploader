@@ -9,6 +9,12 @@
 
 <body>
   <h1><%= title %></h1>
+  <% if (locals.currentUser) { %>
+  <p>Wecome <%= currentUser.username %>!</p>
+  <a href="/logout">Logout</a>
+  <% } else { %>
+  <p><a href="/login">Login</a> or <a href="/signup">Sign Up</a> to begin!</p>
+  <% } %>
 </body>
 
 </html>

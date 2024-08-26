@@ -1,9 +1,32 @@
-const pool = require("./pool");
+const { PrismaClient } = require("@prisma/client");
 
-//just an example
-async function getAll() {
-  const { rows } = await pool.query("SELECT * FROM table");
-  return rows;
+const prisma = new PrismaClient();
+
+async function createUser(username, password) {
+  await prisma.user.create({
+    data: {
+      username: username,
+      password: password,
+    },
+  });
 }
 
-module.exports = { getAll };
+async function getUserFromUsername(username) {
+  const user = await prisma.user.findUnique({
+    where: {
+      username: username,
+    },
+  });
+  return user;
+}
+
+async function getUserFromId(userId) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  return user;
+}
+
+module.exports = { createUser, getUserFromUsername, getUserFromId };
