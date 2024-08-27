@@ -27,10 +27,25 @@ function indexLoginGet(req, res) {
   res.render("login", { title: "Login" });
 }
 
-const indexLoginPost = passport.authenticate("local", {
-  successRedirect: "/",
-  failureRedirect: "/login",
-});
+function indexLoginPost(req, res, next) {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      const errors = [{ msg: info.message }];
+      return res.render("login", { title: "Login", errors });
+    }
+
+    req.login(user, (err) => {
+      if (err) {
+        next(err);
+      }
+      res.redirect("/");
+    });
+  })(req, res, next);
+}
 
 function indexLogoutGet(req, res, next) {
   req.logout((err) => {
