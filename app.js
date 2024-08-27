@@ -16,12 +16,12 @@ passport.use(
       const user = await db.getUserFromUsername(username);
 
       if (!user) {
-        done(null, false, { message: "Username doesn't exist" });
+        return done(null, false, { message: "Username doesn't exist" });
       }
 
-      const match = bcrypt.compare(password, user.password);
+      const match = await bcrypt.compare(password, user.password);
       if (!match) {
-        done(null, false, { message: "Incorrect password." });
+        return done(null, false, { message: "Incorrect password." });
       }
 
       done(null, user);

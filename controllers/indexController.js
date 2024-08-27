@@ -29,7 +29,7 @@ function indexLoginGet(req, res) {
 
 const indexLoginPost = passport.authenticate("local", {
   successRedirect: "/",
-  failureRedirect: "/",
+  failureRedirect: "/login",
 });
 
 function indexLogoutGet(req, res, next) {
