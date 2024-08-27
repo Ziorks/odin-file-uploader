@@ -1,56 +1,19 @@
 require("dotenv").config();
 const path = require("path");
-const bcrypt = require("bcryptjs");
 const express = require("express");
 const session = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
+const configurePassport = require("./utilities/passport.config.js");
 const indexRouter = require("./routes/indexRouter");
-const db = require("./db/queries");
-
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const user = await db.getUserFromUsername(username);
-
-      if (!user) {
-        return done(null, false, { message: "Username doesn't exist" });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        return done(null, false, { message: "Incorrect password." });
-      }
-
-      done(null, user);
-    } catch (err) {
-      done(err);
-    }
-  })
-);
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (userId, done) => {
-  try {
-    const user = await db.getUserFromId(userId);
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
-});
 
 const app = express();
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
-app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
@@ -67,6 +30,7 @@ app.use(
     }),
   })
 );
+configurePassport(passport);
 app.use(passport.session());
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;

@@ -1,22 +1,8 @@
-const { body, validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
+const validators = require("../utilities/validators");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const db = require("../db/queries");
-
-const validateSignup = [
-  body("username")
-    .trim()
-    .isLength({ max: 16 })
-    .withMessage("Username can not be longer than 16 characters."),
-  body("password")
-    .isLength({ min: 6, max: 255 })
-    .withMessage("Password must be from 6 to 255 characters long."),
-  body("confirmPassword")
-    .custom((value, { req }) => {
-      return value === req.body.password;
-    })
-    .withMessage("Passwords do not match."),
-];
 
 //name convention <rootPath><thing><httpVerb>
 function indexGet(req, res) {
@@ -61,7 +47,7 @@ function indexSignupGet(req, res) {
 }
 
 const indexSignupPost = [
-  validateSignup,
+  validators.validateSignup,
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
