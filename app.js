@@ -3,10 +3,12 @@ const path = require("path");
 const express = require("express");
 const session = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("./db/prismaClient.js");
 const passport = require("passport");
 const configurePassport = require("./utilities/passport.config.js");
+
 const indexRouter = require("./routes/indexRouter");
+const fileRouter = require("./routes/fileRouter.js");
 
 const app = express();
 
@@ -23,7 +25,7 @@ app.use(
     secret: process.env.SESSION_PASSWORD,
     resave: false,
     saveUninitialized: true,
-    store: new PrismaSessionStore(new PrismaClient(), {
+    store: new PrismaSessionStore(prisma, {
       checkPeriod: 1000 * 60 * 2, // 2 minutes
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
@@ -38,6 +40,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/", indexRouter);
+app.use("/file", fileRouter);
 app.get("*", (req, res) => {
   res.status(404).render("404", { title: "404 - Not Found" });
 });
